@@ -28,4 +28,4 @@ target_link_libraries(unit_test PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include/unity
 # Set debug flags
 # Specify the directory for the binary output
 set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin)
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DUNITY_INCLUDE_DOUBLE -DUNITY_DOUBLE_PRECISION=1e-12")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -DUNITY_INCLUDE_DOUBLE -DUNITY_DOUBLE_PRECISION=1e-12")
