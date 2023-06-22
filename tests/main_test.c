@@ -31,7 +31,10 @@ int main() {
   Variable *final_res = sigmoid(mul_res);
   Variable *final_res_1 = relu(mul_res);
 
-  Variable *loss = sub(final_res, final_res_1);
+  // Variable *expected = (Variable*)malloc(sizeof(Variable));
+  // expected = Init
+
+  // Variable *loss = sub(final_res, expected);
 
   Variable **independent_vars = (Variable **)malloc(2 * sizeof(Variable *));
   independent_vars[0] = final_res;

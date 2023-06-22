@@ -30,7 +30,9 @@ void test_Addition(void) {
   TEST_ASSERT_EQUAL_MEMORY(&x, add_res->children[0], sizeof(Variable));
   TEST_ASSERT_EQUAL_MEMORY(&y, add_res->children[1], sizeof(Variable));
 
+  printf("before free\n");
   free_from_variable(add_res);
+  printf("after free\n");
 }
 
 void test_Subtraction(void) {
