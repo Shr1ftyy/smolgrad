@@ -87,6 +87,18 @@ void test_ReLU(void) {
   free_from_variable(relu_res);
 }
 
+void test_Power(void) {
+  Variable x;
+  init_var(&x, 3.0);
+
+  Variable *pow_res = power(&x, 2);
+  TEST_ASSERT_NOT_NULL(pow_res);
+  TEST_ASSERT_EQUAL_DOUBLE(9.0, pow_res->val);
+  TEST_ASSERT_EQUAL_MEMORY(&x, pow_res->children[0], sizeof(Variable));
+
+  free_from_variable(pow_res);
+}
+
 int main(void) {
   UNITY_BEGIN();
   RUN_TEST(test_VariableInitialization);
@@ -95,6 +107,7 @@ int main(void) {
   RUN_TEST(test_Multiplication);
   RUN_TEST(test_Sigmoid);
   RUN_TEST(test_ReLU);
+  RUN_TEST(test_Power);
   UNITY_END();
 
   return 0;
