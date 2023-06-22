@@ -1,18 +1,19 @@
 #include "NN.h"
 #include <stdio.h>
+#include <assert.h>
 
 int main() {
   printf("yo\n");
   printf("let's go\n");
 
-  Value** children = malloc(sizeof(Value*));
+  Variable** children = malloc(sizeof(Variable*));
   double* grads = malloc(sizeof(double));
 
-  Value x = {3, children, grads};
-  Value y = {2, children, grads};
-  Value* add_res = add(&x, &y);
-  Value* sub_res = sub(&x, &y);
-  Value* mul_res = mul(&x, &y);
+  Variable x = {3, children, grads};
+  Variable y = {2, children, grads};
+  Variable* add_res = add(&x, &y);
+  Variable* sub_res = sub(&x, &y);
+  Variable* mul_res = mul(&x, &y);
 
   printf("%f + ", x.val);
   printf("%f = ", y.val);
@@ -25,7 +26,7 @@ int main() {
 
   printf("\nchildren values:\n");
   for(int i=0; i<add_res->n_children; i++){
-    printf("%f\n", add_res->child_values[i]->val);
+    printf("%f\n", add_res->children[i]->val);
   }
 
   printf("%f - ", x.val);
@@ -39,7 +40,7 @@ int main() {
 
   printf("\nchildren values:\n");
   for(int i=0; i<sub_res->n_children; i++){
-    printf("%f\n", sub_res->child_values[i]->val);
+    printf("%f\n", sub_res->children[i]->val);
   }
 
   printf("%f * ", x.val);
@@ -53,7 +54,7 @@ int main() {
 
   printf("\nchildren values:\n");
   for(int i=0; i<mul_res->n_children; i++){
-    printf("%f\n", add_res->child_values[i]->val);
+    printf("%f\n", add_res->children[i]->val);
   }
 
   return 0;
