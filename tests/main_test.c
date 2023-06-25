@@ -1,67 +1,98 @@
+#ifndef DEBUG
+#define DEBUG 1
+#endif
+
 #include "NN.h"
 #include <stdio.h>
 
-void print_vars(Variable *node) {
-  if (node == NULL) {
+void print_vars(Variable *node)
+{
+    if (node == NULL)
+    {
+        return;
+    }
+
+    for (int i = 0; i < node->n_children; i++)
+    {
+        print_vars(node->children[i]);
+    }
+
+    print_variable(node);
+    for (int idx = 0; idx < node->n_children; idx++)
+    {
+        printf("%.3f, ", node->local_grads[idx]);
+    }
+    printf("\n----------------\n");
+
     return;
-  }
-
-  for (int i = 0; i < node->n_children; i++) {
-    print_vars(node->children[i]);
-  }
-
-  printf("%lf, %p, %p, %d\n", node->val, node->local_grads, node->children,
-         node->n_children);
-
-  return;
 }
 
-int main() {
-  printf("yo\n");
-  printf("let's go\n");
+int main()
+{
+    printf("yo\n");
+    printf("let's go\n");
 
-  Variable **children = NULL;
-  double *grads = NULL;
 
-  Variable x0 = {0.5, children, grads, 0};
-  Variable x1 = {0.7, children, grads, 0};
 
-  Variable *add_res = add(&x0, &x1);
-  Variable *mul_res = mul(&x0, add_res);
-  Variable *final_res = sigmoid(mul_res);
-  Variable *final_res_1 = relu(mul_res);
+    Variable x0; 
+    Variable x1; 
+    Variable x2; 
 
-  // Variable *expected = (Variable*)malloc(sizeof(Variable));
-  // expected = Init
+    init_var(&x0, 0.5, false);
+    init_var(&x1, 0.3, false);
+    init_var(&x2, 0.1, false);
 
-  // Variable *loss = sub(final_res, expected);
+    Variable *add_res = add(&x0, &x1);
+    Variable *add_res_1 = add(&x1, &x2);
+    Variable *mul_res = mul(add_res, add_res_1);
+    Variable *final_res = sigmoid(mul_res);
+    Variable *final_res_1 = relu(mul_res);
 
-  Variable **independent_vars = (Variable **)malloc(2 * sizeof(Variable *));
-  independent_vars[0] = final_res;
-  independent_vars[1] = final_res_1;
+    mul_res->can_grad = true;
+    add_res->can_grad = true;
+    add_res_1->can_grad = true;
 
-  printf("final_res: %lf\n", final_res->val);
-  printf("final_res_1: %lf\n", final_res_1->val);
+    Variable *expected = (Variable*)malloc(sizeof(Variable));
 
-  // dfs all children
-  printf("\n### vals: ###\n");
-  print_vars(final_res);
+    Variable *loss = sub(final_res, expected);
 
-  VariablesGradAllocator **grad_buf =
-      (VariablesGradAllocator **)malloc(2 * sizeof(VariablesGradAllocator *));
-  init_grad_bufs(grad_buf, 2);
-  get_gradients(grad_buf, independent_vars, 2);
+    Variable **independent_vars = (Variable **)malloc(2 * sizeof(Variable *));
+    independent_vars[0] = final_res;
+    independent_vars[1] = final_res_1;
 
-  printf("### grad_buf: ###\n");
-  for (int i = 0; i < 2; i++) {
-    VariablesGradAllocator *grad = grad_buf[i];
-    for (int j = 0; j < grad->size; j++) {
-      printf("%f, %f, %f, %zu\n", grad->independent_var->val,
-             grad->dependent_vars[j]->val, grad->gradients[j]->val, grad->size);
+    printf("final_res: %lf\n", final_res->val);
+    printf("final_res_1: %lf\n", final_res_1->val);
+
+    // dfs all children
+    printf("\n### final_res: ###\n");
+    print_vars(final_res);
+    printf("\n### final_res_1: ###\n");
+    print_vars(final_res_1);
+
+    VariablesGradAllocator *grad_alloc =
+        (VariablesGradAllocator *)malloc(sizeof(VariablesGradAllocator));
+    init_grad_alloc(grad_alloc);
+    get_gradients(grad_alloc, independent_vars, 2);
+
+    printf("### grad_alloc: ###\n");
+    for (int idx = 0; idx < grad_alloc->n_indep_vars; idx++)
+    {
+        printf("hashmap size: %zu\n", hashmap_count(grad_alloc->dep_grad_map));
+
+        Variable *indep_var = grad_alloc->independent_vars[idx];
+
+        size_t iter = 0;
+        Variable *item;
+        int idx = 0;
+
+        while (hashmap_iter(grad_alloc->dep_grad_map, &iter, &item))
+        {
+            printf("%i, %f, %p, %f, %f\n", idx, indep_var->val, grad_alloc->dependent_vars[idx], grad_alloc->dependent_vars[idx]->val, item->val);
+            idx++;
+        }
+        printf("-----------------\n");
     }
-    printf("-----------------\n");
-  }
 
-  // free_from_variable(final_res);
-  return 0;
+    free_from_variable(final_res);
+    return 0;
 }

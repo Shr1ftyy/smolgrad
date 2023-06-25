@@ -2,7 +2,7 @@ bin/
 build/
 CMakeFiles/
 .vscode
-media/
+media/**
 .cache
 .vscode
 
